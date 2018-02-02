@@ -1,40 +1,47 @@
-import org.junit.After;
-import org.junit.Assert;
+import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.WebDriverRunner;
 import org.junit.Before;
 import org.junit.Test;
-import org.openqa.selenium.*;
-import org.openqa.selenium.chrome.ChromeDriver;
 import pages.FilmPage;
 import pages.MainPage;
 
-import java.util.concurrent.TimeUnit;
-
-import static org.openqa.selenium.Keys.*;
-import static org.openqa.selenium.Keys.chord;
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Selenide.*;
+import static com.codeborne.selenide.WebDriverRunner.url;
 
 public class KinoPoiskTest {
 
-    WebDriver driver;
     private static final String GEO = "Геошторм";
 
     @Before
     public void createDriver() {
-        driver = new ChromeDriver();
-        driver.get("https://www.kinopoisk.ru/");
-        driver.manage().window().fullscreen();
-        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-    }
-
-    @After
-    public void closeDriver(){
-        driver.quit();
+        //Открытие страницы в Selenide:
+        //Если ранее был создан экземпляр WebDriver, то будет
+        //использован он, иначе будет создан новый экземпляр
+        //WebDriver. В конце теста нет необходимости закрывать
+        //окно браузера
+        open("https://www.kinopoisk.ru/");
+        //В селениде есть возможность получить текущий экземпляр
+        //драйвера и вызвать его методы:
+        WebDriverRunner.getWebDriver().manage().window().fullscreen();
+        //Получить текущий url страницы:
+        WebDriverRunner.url();
     }
 
     @Test
     public void searchFilm() throws InterruptedException {
-        MainPage mainPage = new MainPage(driver);
+        //инициализация страницы:
+        MainPage mainPage = Selenide.page(MainPage.class);
         FilmPage filmPage = mainPage.searchInfo(GEO);
-        Assert.assertEquals(GEO, filmPage.findMovieTitle());
+        //Ожидания: можно использовать вместо ассертов
+        filmPage.findMovieTitle().shouldHave(text(GEO));
+        //Получить title страницы:
+        title();
+        //Снять скриншот элемента
+        //(проблемы при кастомном разрешении)
+        filmPage.findMovieTitle().screenshot();
+        //снять скриншот всей страницы:
+        Selenide.screenshot("kinopoisk");
     }
 
     @Test
@@ -44,13 +51,13 @@ public class KinoPoiskTest {
 //        driver.switchTo().activeElement().sendKeys(keys);
 
 //      Как исполнять js-скрипты (в данном случае открытие новой вкладки)
-        ((JavascriptExecutor) driver).executeScript("window.open('https://www.google.com')");
+        executeJavaScript("window.open('https://www.google.com')");
         Thread.sleep(3000);
     }
 
     @Test
     public void explicitlyWaitTest() {
-        MainPage mainPage = new MainPage(driver);
+        MainPage mainPage = page(MainPage.class);
         mainPage.hoverOnElementAndCheckPopUp();
     }
 }

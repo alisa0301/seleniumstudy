@@ -1,19 +1,19 @@
 package pages;
 
-import org.openqa.selenium.By;
+import com.codeborne.selenide.SelenideElement;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
 
 public class FilmPage {
-    private static final String MOVIE_NAME = ".moviename-big";
-    private WebDriver driver;
 
-    public FilmPage(WebDriver driver) {
-        this.driver = driver;
-    }
 
-    public String findMovieTitle() {
-        WebElement nameField = driver.findElement(By.cssSelector(MOVIE_NAME));
-        return nameField.getText();
+    @FindBy(css = ".moviename-big")
+    private SelenideElement filmTitle;
+
+
+    public SelenideElement findMovieTitle() {
+        return filmTitle;
     }
 }

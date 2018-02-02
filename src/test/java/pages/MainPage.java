@@ -1,5 +1,8 @@
 package pages;
 
+import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.SelenideElement;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -9,32 +12,33 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import static com.codeborne.selenide.Selenide.*;
+import static com.codeborne.selenide.Selenide.page;
+
 public class MainPage {
-    private WebDriver driver;
+
     private static final String POP_UP_SELECTOR = ".header-menu-partial-component__subitems";
 
     @FindBy(className = "header-search-partial-component__search-field")
-    private WebElement searchField;
+    private SelenideElement searchField;
 
     @FindBy(xpath = "//span[text()='Рейтинги']")
-    private WebElement ratings;
-
-    public MainPage(WebDriver driver) {
-        this.driver = driver;
-        PageFactory.initElements(driver, this);
-    }
+    private SelenideElement ratings;
 
     public FilmPage searchInfo(String info) {
         searchField.sendKeys(info);
         searchField.submit();
-        return new FilmPage(driver);
+        return page(FilmPage.class);
     }
 
     public void hoverOnElementAndCheckPopUp(){
-        Actions actions = new Actions(driver);
-        actions.moveToElement(ratings).build().perform();
-        WebDriverWait wait = new WebDriverWait(driver, 10);
-        WebElement popUp = driver.findElement(By.cssSelector(POP_UP_SELECTOR));
-        wait.until(ExpectedConditions.visibilityOf(popUp));
+        //наведение на элемент
+        ratings.hover();
+        SelenideElement popUp = $(POP_UP_SELECTOR);
+        //явные ожидания в Selenide:
+        popUp.waitUntil(Condition.visible, 10000);
+        //Можно использовать вместо Ассертов, здесь
+        //используются неявные ожидания
+        //popUp.shouldBe(Condition.appear);
     }
 }
